@@ -126,6 +126,12 @@ impl Connection {
                 iph.source()[3],
             ],
         );
+        syn_ark.checksum = syn_ark
+            .calc_checksum_ipv4(&ip, &[])
+            .expect("faild to compute checksum");
+
+        eprintln!("got ip header:\n{:02x?}", iph);
+        eprintln!("got tcp header:\n{:02x?}", tcph);
 
         let unwritten = {
             let mut unwritten = &mut buf[..];
@@ -133,6 +139,7 @@ impl Connection {
             syn_ark.write(&mut unwritten);
             unwritten.len()
         };
+        eprintln!("responding with {:02x?}", &buf[..buf.len() - unwritten]);
         // write out the headers
         nic.send(&buf[..unwritten])?;
         Ok(Some(c))
@@ -145,6 +152,6 @@ impl Connection {
         tcph: etherparse::TcpHeaderSlice<'a>,
         data: &'a [u8],
     ) -> io::Result<()> {
-        unimplemented!()
+        Ok(())
     }
 }
